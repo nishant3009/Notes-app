@@ -1,35 +1,40 @@
-Notes SaaS App
+# Notes SaaS App
 
-Multi-tenant Notes app supporting Acme & Globex tenants with Admin and Member roles.
+Multi-tenant Notes app supporting **Acme** & **Globex** tenants with **Admin** and **Member** roles.
 
-Multi-Tenancy: Shared schema using tenantId for strict isolation.
+---
 
-Authentication: JWT-based login stored in localStorage.
+## Multi-Tenancy
+Shared schema using `tenantId` for strict isolation.
 
-Roles:
+---
 
-Admin → invite users, upgrade plan
+## Authentication
+JWT-based login stored in `localStorage`.
 
-Member → create/view/edit/delete notes
+---
 
-Predefined accounts:
+## Roles
 
-admin@acme.test
-, user@acme.test
+- **Admin** → invite users, upgrade plan  
+- **Member** → create/view/edit/delete notes
 
-admin@globex.test
-, user@globex.test
+---
 
-Subscription:
+## Predefined Accounts
 
-Free → max 3 notes
+- **Acme Tenant:** `admin@acme.test`, `user@acme.test`  
+- **Globex Tenant:** `admin@globex.test`, `user@globex.test`
 
-Pro → unlimited notes
+---
 
-Upgrade: POST /api/tenants/:slug/upgrade
+## Subscription
 
-Notes API: CRUD via /api/notes endpoints.
+- **Free** → max 3 notes  
+- **Pro** → unlimited notes
 
-Deployment: Hosted on Vercel, health check at /api/health.
+---
 
-Tech Stack: Next.js, React, Tailwind CSS, Node.js, JWT, MongoDB
+## Upgrade
+```http
+POST /api/tenants/:slug/upgrade

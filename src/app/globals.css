@@ -24,3 +24,50 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/*
+  upgrade to pro button custom styling
+  45° animated gradient with black–gray–white–gold shades
+
+  @keyframes ux-gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  Reusable animated gradient button skin
+  .upgrade-gradient {
+    Linear gradient at 45deg with smooth multi-stop blend
+    background-image: linear-gradient(
+      45deg,
+      #000000 0%,
+      #374151 5%,
+      #9ca3af 45%,
+      #ffffff 55%,
+      #d4af37 70%,   classic gold
+      #b8860b 85%,   dark goldenrod for depth
+      #000000 100%
+    );
+    background-size: 300% 300%;       oversize for seamless motion
+    animation: ux-gradient-shift 15s ease-in-out infinite;
+    color: #0a0a0a;                   keep text readable over light stops
+    position: relative;
+    isolation: isolate;               ensure overlay layers render correctly
+  }
+
+  Optional: subtle overlay for consistent text contrast on very light segments
+  .upgrade-gradient::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(60% 80% at 50% 50%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.12) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  Accessibility focus-visible outline if not using Tailwind focus rings
+  .upgrade-gradient:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
+  }
+*/

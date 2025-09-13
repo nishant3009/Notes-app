@@ -37,36 +37,52 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <div className="flex justify-center items-center h-screen bg-black">
+ return (
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
       <form
         onSubmit={handleLogin}
-        className="bg-white p-8 rounded shadow-md w-96"
+        className="w-full max-w-sm bg-neutral-950/80 backdrop-blur p-6 rounded-xl border border-neutral-800 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]"
       >
-        <h1 className="text-2xl font-bold mb-6 text-center text-black">Login</h1>
+        <h1 className="text-white text-center text-2xl font-semibold tracking-tight">
+          Login
+        </h1>
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {error && (
+          <p className="mt-3 text-red-400 text-sm text-center">
+            {error}
+          </p>
+        )}
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 p-2 border rounded text-black"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 p-2 border rounded text-black"
-          required
-        />
+        <div className="mt-5 space-y-3">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full h-11 rounded-lg bg-neutral-900/80 text-white placeholder-neutral-500 px-3 border border-neutral-800 focus:outline-none focus:border-neutral-200 focus:ring-4 focus:ring-white/5 transition-colors"
+            required
+            autoComplete="email"
+            aria-label="Email"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full h-11 rounded-lg bg-neutral-900/80 text-white placeholder-neutral-500 px-3 border border-neutral-800 focus:outline-none focus:border-neutral-200 focus:ring-4 focus:ring-white/5 transition-colors"
+            required
+            autoComplete="current-password"
+            aria-label="Password"
+          />
+        </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          className="mt-5 w-full h-11 rounded-lg bg-white text-black font-medium tracking-wide
+                     transition-all duration-200
+                     hover:bg-neutral-200 hover:shadow-[0_8px_20px_-8px_rgba(255,255,255,0.5)]
+                     active:scale-[0.98] active:bg-neutral-300
+                     focus:outline-none focus:ring-4 focus:ring-white/20"
         >
           Login
         </button>

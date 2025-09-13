@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function NotesPage() {
   const [notes, setNotes] = useState([]);
@@ -9,7 +10,10 @@ export default function NotesPage() {
   const [upgradeVisible, setUpgradeVisible] = useState(false);
   const [tenantSlug, setTenantSlug] = useState("");
   const [userEmail, setUserEmail] = useState("");
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const router = useRouter();
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   // fetch notes for tenant
   const fetchNotes = async () => {
@@ -28,12 +32,30 @@ export default function NotesPage() {
     }
   };
 
+  // useEffect(() => {
+  //   if (token) {
+  //     const payload = JSON.parse(atob(token.split(".")[1]));
+  //     setUserEmail(payload.email);      // show logged-in email
+  //     setTenantSlug(payload.tenantSlug);
+  //   }
+  //   fetchNotes();
+  // }, [token]);
+
   useEffect(() => {
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUserEmail(payload.email);      // show logged-in email
-      setTenantSlug(payload.tenantSlug);
+    if (!token) {
+      router.push("/login"); // 🚀 redirect if not logged in
+      return;
     }
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setUserEmail(payload.email);
+      setTenantSlug(payload.tenantSlug);
+    } catch (err) {
+      console.error("Invalid token");
+      router.push("/login");
+    }
+
     fetchNotes();
   }, [token]);
 
@@ -44,16 +66,23 @@ export default function NotesPage() {
     try {
       const res = await fetch("/api/notes", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ title, content }),
       });
       const data = await res.json();
       if (!res.ok) setError(data.error);
       else {
-        setTitle(""); setContent(""); setError("");
+        setTitle("");
+        setContent("");
+        setError("");
         fetchNotes();
       }
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // update a note
@@ -62,13 +91,18 @@ export default function NotesPage() {
     try {
       const res = await fetch(`/api/notes?id=${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ title, content }),
       });
       const data = await res.json();
       if (!res.ok) setError(data.error);
       else fetchNotes();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // delete a note
@@ -80,7 +114,9 @@ export default function NotesPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchNotes();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // upgrade Free to pro
@@ -96,94 +132,168 @@ export default function NotesPage() {
         alert("Tenant upgraded to Pro! You can now create unlimited notes.");
         fetchNotes();
       } else alert(data.error);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      {/* Logged-in user */}
-      <div className="mb-4 text-white-600 ">
-        Logged in as <strong>{userEmail}</strong>
-      </div>
+    <div className="min-h-screen bg-black text-white">
+      <div className="mx-auto max-w-2xl px-4 py-10">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="text-sm text-neutral-400">
+            Logged in as{" "}
+            <strong className="text-neutral-200">{userEmail}</strong>
+          </div>
 
-      {/* Upgrade button */}
-      {upgradeVisible && (
-        <button
-          onClick={handleUpgrade}
-          className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+          {upgradeVisible && (
+            <button
+              onClick={handleUpgrade}
+              className="inline-flex items-center justify-center
+                          h-11 px-4 rounded-lg font-medium tracking-wide
+                          border border-neutral-800
+                          bg-neutral-900/80 text-white
+                          transition-all duration-200
+                          hover:border-[#D4AF37]
+                          hover:shadow-[0_10px_30px_-12px_rgba(212,175,55,0.5)]
+                          active:scale-[0.98]
+                          focus:outline-none focus:ring-4 focus:ring-white/20"
+              title="Upgrade to Pro"
+            >
+              <span className="relative z-10">Upgrade to Pro</span>
+            </button>
+          )}
+        </div>
+
+        <form
+          onSubmit={handleCreate}
+          className="mb-8 rounded-xl border border-neutral-800 bg-neutral-950/80 backdrop-blur p-5
+                     shadow-[0_0_0_1px_rgba(255,255,255,0.02)]"
         >
-          Upgrade to Pro
-        </button>
-      )}
+          <h2 className="mb-4 text-lg font-medium text-neutral-200">
+            Create note
+          </h2>
+          <div className="space-y-3">
+            <input
+              type="text"
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full h-11 rounded-lg bg-neutral-900/80 text-white placeholder-neutral-500 px-3
+                         border border-neutral-800
+                         focus:outline-none focus:border-neutral-200 focus:ring-4 focus:ring-white/5
+                         transition-colors"
+              required
+              aria-label="Title"
+            />
+            <input
+              type="text"
+              placeholder="Content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full h-11 rounded-lg bg-neutral-900/80 text-white placeholder-neutral-500 px-3
+                         border border-neutral-800
+                         focus:outline-none focus:border-neutral-200 focus:ring-4 focus:ring-white/5
+                         transition-colors"
+              required
+              aria-label="Content"
+            />
+          </div>
+          <button
+            type="submit"
+            className="mt-4 w-full h-11 rounded-lg bg-white text-black font-medium tracking-wide
+                       transition-all duration-200
+                       hover:bg-neutral-200 hover:shadow-[0_8px_20px_-8px_rgba(255,255,255,0.5)]
+                       active:scale-[0.98] active:bg-neutral-300
+                       focus:outline-none focus:ring-4 focus:ring-white/20"
+          >
+            Create Note
+          </button>
+          {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+        </form>
 
-      {/* Create note form */}
-      <form onSubmit={handleCreate} className="mb-6 flex flex-col gap-2">
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="border p-2 rounded"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="border p-2 rounded"
-          required
-        />
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
-          Create Note
-        </button>
-      </form>
-      {/* Error message */}
-      {error && <p className="text-red-500 mb-2">{error}</p>}
+        <ul className="space-y-3">
+          {notes.map((note) => (
+            <li
+              key={note._id}
+              className="group rounded-xl border border-neutral-800 bg-neutral-950/80 backdrop-blur p-4
+                         transition-all duration-200
+                         hover:border-neutral-700 hover:shadow-[0_8px_24px_-12px_rgba(255,255,255,0.06)]"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="text"
+                    value={note.title}
+                    onChange={(e) =>
+                      setNotes((prev) =>
+                        prev.map((n) =>
+                          n._id === note._id
+                            ? { ...n, title: e.target.value }
+                            : n
+                        )
+                      )
+                    }
+                    className="w-full bg-transparent text-white font-semibold tracking-tight
+                               border-b border-neutral-800 focus:border-neutral-300
+                               focus:outline-none focus:ring-0"
+                    aria-label="Note title"
+                  />
+                  <input
+                    type="text"
+                    value={note.content}
+                    onChange={(e) =>
+                      setNotes((prev) =>
+                        prev.map((n) =>
+                          n._id === note._id
+                            ? { ...n, content: e.target.value }
+                            : n
+                        )
+                      )
+                    }
+                    className="w-full bg-transparent text-neutral-300
+                               border-b border-neutral-800 focus:border-neutral-300
+                               focus:outline-none focus:ring-0"
+                    aria-label="Note content"
+                  />
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    onClick={() =>
+                      handleUpdate(note._id, note.title, note.content)
+                    }
+                    className="rounded-md bg-neutral-800 text-white px-3 h-9 text-sm
+                               transition-all duration-200
+                               hover:bg-neutral-700 hover:shadow-[0_6px_18px_-8px_rgba(255,255,255,0.2)]
+                               active:scale-[0.98]
+                               focus:outline-none focus:ring-4 focus:ring-white/10"
+                    title="Save"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => handleDelete(note._id)}
+                    className="rounded-md bg-red-600 text-white px-3 h-9 text-sm
+                               transition-all duration-200
+                               hover:bg-red-500 hover:shadow-[0_6px_18px_-8px_rgba(255,255,255,0.2)]
+                               active:scale-[0.98]
+                               focus:outline-none focus:ring-4 focus:ring-red-500/30"
+                    title="Delete"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
 
-      {/* Notes list */}
-      <ul className="mb-6">
-        {notes.map((note) => (
-          <li key={note._id} className="border p-2 mb-2 flex justify-between items-center">
-            <div className="flex flex-col gap-1">
-              <input
-                type="text"
-                value={note.title}
-                onChange={(e) =>
-                  setNotes((prev) =>
-                    prev.map((n) => (n._id === note._id ? { ...n, title: e.target.value } : n))
-                  )
-                }
-                className="font-bold border-b mb-1"
-              />
-              <input
-                type="text"
-                value={note.content}
-                onChange={(e) =>
-                  setNotes((prev) =>
-                    prev.map((n) => (n._id === note._id ? { ...n, content: e.target.value } : n))
-                  )
-                }
-                className="border-b"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleUpdate(note._id, note.title, note.content)}
-                className="bg-gray-500 text-white px-2 rounded"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => handleDelete(note._id)}
-                className="bg-red-500 text-white px-2 rounded"
-              >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+        {notes.length === 0 && (
+          <p className="mt-8 text-center text-sm text-neutral-500">
+            No notes yet. Create the first one.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

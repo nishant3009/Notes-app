@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Notes SaaS App
 
-## Getting Started
+Multi-tenant Notes app supporting Acme & Globex tenants with Admin and Member roles.
 
-First, run the development server:
+Multi-Tenancy: Shared schema using tenantId for strict isolation.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Authentication: JWT-based login stored in localStorage.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Roles:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Admin → invite users, upgrade plan
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Member → create/view/edit/delete notes
 
-## Learn More
+Predefined accounts:
 
-To learn more about Next.js, take a look at the following resources:
+admin@acme.test
+, user@acme.test
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+admin@globex.test
+, user@globex.test
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Subscription:
 
-## Deploy on Vercel
+Free → max 3 notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Pro → unlimited notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Upgrade: POST /api/tenants/:slug/upgrade
+
+Notes API: CRUD via /api/notes endpoints.
+
+Deployment: Hosted on Vercel, health check at /api/health.
+
+Tech Stack: Next.js, React, Tailwind CSS, Node.js, JWT, MongoDB
